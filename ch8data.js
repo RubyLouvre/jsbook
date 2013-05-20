@@ -46,6 +46,7 @@ jQuery.extend({
     }
 })
 
+//jQuery1.3
 jQuery.extend({
     queue: function( elem, type, data ) {
         if ( elem ){
@@ -69,15 +70,9 @@ jQuery.extend({
     }
 })
 
-noData: {
-    "embed": true,
-    "object": true,
-    "applet": true
-},
-//代码防御
-if ( elem.nodeName && jQuery.noData[elem.nodeName.toLowerCase()] ) {
-    return;
-}
+//each是并行处理多个动画,queue是一个接一个处理多个动画
+this[ optall.queue === false ? "each" : "queue" ](function(){ /*略*/})
+
 //jQuery1.3.2 core.js clone方法
 var ret = this.map(function(){
     if ( !jQuery.support.noCloneEvent && !jQuery.isXMLDoc(this) ) {
@@ -92,6 +87,18 @@ var ret = this.map(function(){
     } else
         return this.cloneNode(true);
 });
+
+jQuery1.4发现IE如果对于object, ember,  
+noData: {
+    "embed": true,
+    "object": true,
+    "applet": true
+},
+//代码防御        
+if ( elem.nodeName && jQuery.noData[elem.nodeName.toLowerCase()] ) {
+    return;
+}
+
 //jQuery1.43 $.fn.data
 rbrace = /^(?:\{.*\}|\[.*\])$/;
 if ( data === undefined && this.length ) {
@@ -115,20 +122,16 @@ if ( data === undefined && this.length ) {
     }
 }
 
-//主要用于建立一个从元素到数据的引用，具体用于数据缓存，事件绑定，元素去重
-getUid: global.getComputedStyle ? function( obj ){//IE9+,标准浏览器
-    return obj.uniqueNumber || ( obj.uniqueNumber = NsVal.uuid++ );
-}: function( obj ){
-    if(obj.nodeType !== 1){//如果是普通对象，文档对象，window对象
-        return obj.uniqueNumber || ( obj.uniqueNumber = NsVal.uuid++ );
-    }//注：旧式IE的XML元素不能通过el.xxx = yyy 设置自定义属性
-    var uid = obj.getAttribute("uniqueNumber");
-    if ( !uid ){
-        uid = NsVal.uuid++;
-        obj.setAttribute( "uniqueNumber", uid );
-    }
-    return +uid;//确保返回数字
-},
+var cache = {
+     jQuery14312343254:{/*放置私有数据*/}
+     events: {/"放置事件名与它对应的回调列表"/}
+     /*这里放置用户数据*/
+}
+
+var cache = {
+     data:{/*放置用户数据*/}
+     /*这里放置私有数据*/
+}
 
 function Data() {
     this.cache = {};
@@ -139,23 +142,23 @@ Data.uid = 1;
 Data.prototype = {
     locker: function(owner) {
         var ovalueOf,
-                //owner为元素节点，文档对象，window对象
-                //首先我们检测一下它们valueOf方法有没有被重写，由于浏览器的差异性，
-                //我们通过觅得此三类对象的构造器进行原型重写的成本过大，只能对每一个实例的valueOf方法进行重写。
-                //检测方式为传入Data类，如果是返回"object"说明没有被重写，返回"string"则是被重写。
-                //这个字符串就是我们上面所说的UUID，用于在缓存仓库上开辟缓存体。
-                unlock = owner.valueOf(Data);
+        //owner为元素节点，文档对象，window对象
+        //首先我们检测一下它们valueOf方法有没有被重写，由于浏览器的差异性，
+        //我们通过觅得此三类对象的构造器进行原型重写的成本过大，只能对每一个实例的valueOf方法进行重写。
+        //检测方式为传入Data类，如果是返回"object"说明没有被重写，返回"string"则是被重写。
+        //这个字符串就是我们上面所说的UUID，用于在缓存仓库上开辟缓存体。
+        unlock = owner.valueOf(Data);
         //这里的重写使用了 Object.defineProperty方法，因为在这个版本jQuery不打算往下兼容IE6-8
         //Object.defineProperty的第三个参数为对象，如果不显示设置enumerable, writable, configurable，
         //则会默认为false，这也正如我们所期待的那样，我们不再希望人们来遍历它，重写它，再次动它的配置
         //这个过程被jQuery被称之为开锁，通过valueOf这扇大门，进入到仓库
-        if (typeof unlock !== "string") {
+        if(typeof unlock !== "string") {
             unlock = jQuery.expando + Data.uid++;
             ovalueOf = owner.valueOf;
 
             Object.defineProperty(owner, "valueOf", {
                 value: function(pick) {
-                    if (pick === Data) {
+                    if(pick === Data) {
                         return unlock;
                     }
                     return ovalueOf.apply(owner);
@@ -164,7 +167,7 @@ Data.prototype = {
             });
         }
         //接下来就是开辟缓存体
-        if (!this.cache[unlock]) {
+        if(!this.cache[unlock]) {
             this.cache[unlock] = {};
         }
 
@@ -177,15 +180,15 @@ Data.prototype = {
         unlock = this.locker(owner);
         cache = this.cache[unlock];
         //如果传入3个参数，第2个为字符串，那么直接在缓存体上添加新的键值对
-        if (typeof data === "string") {
+        if(typeof data === "string") {
             cache[data] = value;
             //如果传入2个参数，第2个为对象
         } else {
             //如果缓存体还没有添加过任何对象，那直接赋值，否则使用for in 循环添加新键值对
-            if (jQuery.isEmptyObject(cache)) {
+            if(jQuery.isEmptyObject(cache)) {
                 cache = data;
             } else {
-                for (prop in data) {
+                for(prop in data) {
                     cache[prop] = data[prop];
                 }
             }
@@ -202,19 +205,18 @@ Data.prototype = {
     },
     access: function(owner, key, value) {
         //决定是读方法或是写方法，然后做相应操作
-        if (key === undefined ||
+           if (key === undefined ||
                 ((key && typeof key === "string") && value === undefined)) {
             return this.get(owner, key);
         }
         this.set(owner, key, value);
         return value !== undefined ? value : key;
-    },
+    }, 
     remove: function(owner, key) {
         //略，与第一代差不多
     },
     hasData: function(owner) { //判定此对象是否缓存了数据
         return !jQuery.isEmptyObject(this.cache[this.locker(owner)]);
-        //return JSON.stringify(this.get(owner)) !== "{}";
     },
     discard: function(owner) { //删除它的用户数据与私有数据
         delete this.cache[this.locker(owner)];
@@ -231,31 +233,49 @@ data_user = new Data();
 data_priv = new Data();
 
 jQuery.extend({
-    // UUID
-    expando: "jQuery" + (core_version + Math.random()).replace(/\D/g, ""),
-    //用于向前兼容
-    acceptData: function() {
-        return true;
-    },
-    hasData: function(elem) {//判定是否缓存了数据
-        return data_user.hasData(elem) || data_priv.hasData(elem);
-    },
-    data: function(elem, name, data) {//读写用户数据
-        return data_user.access(elem, name, data);
-    },
-    removeData: function(elem, name) {//删除用户数据
-        return data_user.remove(elem, name);
-    },
-    _data: function(elem, name, data) {//读写私有数据
-        return data_priv.access(elem, name, data);
-    },
-    _removeData: function(elem, name) {//删除私有数据
-        return data_priv.remove(elem, name);
-    }
+	// UUID
+	expando: "jQuery" + ( core_version + Math.random() ).replace( /\D/g, "" ),
+
+	//用于向前兼容
+	acceptData: function() {
+		return true;
+	},
+
+	hasData: function( elem ) {//判定是否缓存了数据
+		return data_user.hasData( elem ) || data_priv.hasData( elem );
+	},
+
+	data: function( elem, name, data ) {//读写用户数据
+		return data_user.access( elem, name, data );
+	},
+
+	removeData: function( elem, name ) {//删除用户数据
+		return data_user.remove( elem, name );
+	},
+	_data: function( elem, name, data ) {//读写私有数据
+		return data_priv.access( elem, name, data );
+	},
+
+	_removeData: function( elem, name ) {//删除私有数据
+		return data_priv.remove( elem, name );
+	}
 });
 
 
-
+//主要用于建立一个从元素到数据的引用，具体用于数据缓存，事件绑定，元素去重
+getUid: global.getComputedStyle ? function( obj ){//IE9+,标准浏览器
+    return obj.uniqueNumber || ( obj.uniqueNumber = NsVal.uuid++ );
+}: function( obj ){
+    if(obj.nodeType !== 1){//如果是普通对象，文档对象，window对象
+        return obj.uniqueNumber || ( obj.uniqueNumber = NsVal.uuid++ );
+    }//注：旧式IE的XML元素不能通过el.xxx = yyy 设置自定义属性
+    var uid = obj.getAttribute("uniqueNumber");
+    if ( !uid ){
+        uid = NsVal.uuid++;
+        obj.setAttribute( "uniqueNumber", uid );
+    }
+    return +uid;//确保返回数字
+},
 
 define("data", ["$lang"], function() {
     $.log("已加载data模块", 7);
@@ -339,7 +359,7 @@ define("data", ["$lang"], function() {
             return target && remitter.test(typeof target) && rtype.test(target.nodeType);
         },
         hasData: function(target) {
-            var cache = $.data(target), name;
+            var cache = $.data(target),name;
             for (name in cache) {
                 if (name === "data" && $.isEmptyObject(cache[name])) {
                     continue;
@@ -371,6 +391,7 @@ define("data", ["$lang"], function() {
     });
 });
 
+//https://github.com/RubyLouvre/mass-Framework/blob/1.2/data.js
 define("data", ["lang"], function($) {
     var owners = [],
             caches = [];
@@ -420,7 +441,14 @@ define("data", ["lang"], function($) {
     });
     return $;
 });
+var map = new WeakMap(), el = document.body
+map.set(el, { data:{} });//设置新键值对
+var value = map.get(el);//读取目标值
+console.log(value);  //{ data:{} }
+console.log( map.has(el) );//判定是否存在此键名
+map.delete( el ) //删除键值对
 
+// https://github.com/RubyLouvre/mass-Framework/blob/1.2/data_neo.js
 define("data", ["lang"], function($) {
     var caches = new WeakMap;//FF6+
     function innerData(owner, name, data, pvt) {
@@ -465,3 +493,6 @@ define("data", ["lang"], function($) {
         }
     });
 });
+
+
+
