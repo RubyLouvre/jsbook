@@ -1,49 +1,54 @@
-function A() {}
+function A() {
+}
 
 A.prototype = {
-  aa: "aa",
-  method: function() {}
+    aa: "aa",
+    method: function() {
+    }
 };
 var a = new A;
 var b = new A;
-console.log(a.aa === b.aa); //true
-console.log(a.method === b.method); //true
+console.log(a.aa === b.aa);//true
+console.log(a.method === b.method);//true
 
 function A() {
     var count = 0
     this.aa = "aa";
-　　this.method = function() {
-　　  return count
+this.method = function() {
+  return count
     }
     this.obj = {}
 }
 
 A.prototype = {
-  aa: "aa",
-  method: function() {}
+    aa: "aa",
+    method: function() {
+    }
 };
 var a = new A;
 var b = new A;
-console.log(a.aa === b.aa); //true 由于aa的值为基本类型,比较值
-console.log(a.obj === b.obj); //false,引用类型,每次进入函数体都重新创建,因此都不一样
-console.log(a.method === b.method); //false
+console.log(a.aa === b.aa);//true 由于aa的值为基本类型,比较值
+console.log(a.obj === b.obj);//false,引用类型,每次进入函数体都重新创建,因此都不一样
+console.log(a.method === b.method);//false
+
 delete a.method;
-console.log(a.method === A.prototype.method); //true
-A.method2 = function() {}; //类方法
+console.log(a.method === A.prototype.method);//true
+
+A.method2 = function(){};//类方法
 var c = new A;
-console.log(c.method2); //undefined
+console.log(c.method2);//undefined
 
-function A() {}
+function A(){}
 A.prototype = {
-  aaa: 1
+   aaa:1
 }
-
-function B() {}
+function B(){}
 B.prototype = A.prototype;
-var b = new B;
-console.log(b.aaa); //1;
+var b= new B;
+console.log(b.aaa);//1;
 A.prototype.bbb = 2;
-console.log(b.bbb); //2;
+console.log(b.bbb);//2;
+
 
 function extend(destination, source) {
   for(var property in source)
@@ -52,7 +57,6 @@ function extend(destination, source) {
 }
 
 
-function A() {}
 A.prototype = {
   aa: function() {
     alert(1)
@@ -81,54 +85,50 @@ B.prototype.cc = function() {
 }
 //false，但父亲未必有机会看到孩子的新产业
 console.log(a.cc === b.cc);
+//并且它能正常通过JS自带验证机制————instanceof
+console.log(b instanceof A);//true
+console.log(b instanceof B);//true
 
-//==========================================
-Object.create = function(o) {
-  function F() {}
-  F.prototype = o;
-  return new F();
+Object.create = function (o) {  
+    function F() {}  
+    F.prototype = o;  
+    return new F();  
+}  
+
+function inherit(init, Parent, proto){
+    function Son(){
+        Parent.apply(this,argument);//先继承父类的特权成员
+        init.apply(this,argument);//再执行自己的构造器
+    }
+    //由于Object.create可能是我们伪造的，因此避免使用第二个参数
+    Son.prototype = Object.create(Parent.prototype,{});
+    Son.prototype.toString = Parent.prototype.toString;//处理IE BUG
+    Son.prototype.valueOf = Parent.prototype.valueOf;//处理IE BUG
+    Son.prototype.constructor = Son;//确保构造器正常指向自身，而不是Object
+    extend(Son.prototype, proto);//添加子类特有的原型成员
+    extend(Son, Parent);//继承父类的类成员
+    return Son;
 }
-
-
-function inherit(init, Parent, proto) {
-  function Son() {
-    Parent.apply(this, argument); //先继承父类的特权成员
-    init.apply(this, argument); //再执行自己的构造器
-  }
-  //由于Object.create可能是我们伪造的，因此避免使用第二个参数
-  Son.prototype = Object.create(Parent.prototype, {});
-  Son.prototype.toString = Parent.prototype.toString; //处理IE BUG
-  Son.prototype.valueOf = Parent.prototype.valueOf; //处理IE BUG
-  Son.prototype.constructor = Son; //确保构造器正常指向自身，而不是Object
-  extend(Son.prototype, proto); //添加子类特有的原型成员
-  extend(Son, Parent); //继承父类的类成员
-  return Son;
-}
-
-
-//=====================================
 
 function A() {}
 A.prototype = {
   aa: 1
 }
 var a = new A;
-console.log(a.aa); //1
+console.log( a.aa);//1
 //把它整个原型对象都换掉
 A.prototype = {
   aa: 2
 }
-console.log(a.aa); //1，不受影响
+console.log(a.aa);//1，不受影响
 //于是我们想到实例都有一个constructor方法，指向其构造器，
 //而构造器上面正好有我们的原型，javascript引擎是不是通过该路线回溯属性呢
-
-function B() {}
+function B(){}
 B.prototype = {
   aa: 3
 }
 a.constructor = B;
-console.log(a.aa); //1 不受影响
-//=================================
+console.log( a.aa );//1 不受影响
 
 function A() {
   console.log(this.__proto__.aa); //1
@@ -145,107 +145,106 @@ a.__proto__ = {
 delete a.aa; //删掉特权属性，暴露原型链上的同名属性
 console.log(a.aa); //3
 
-function fn() {
-  // 你要执行的代码
+
+function A() {}
+A.prototype = {
+  aa: 1
 }
 
-if(window.addEventListener) { //先执行W3C
-  input.addEventListener("input", fn);
-} else {
-  input.attachEvent("onpropertychange", fn);
+function bridge() {};
+bridge.prototype = A.prototype;
 
+function B() {}
+B.prototype = new bridge();
+B.prototype.constructor = B;
+var b = new B;
+B.prototype.cc = function() {
+  alert(3)
 }
-
-if(window.VBArray && window.addEventListener) { //IE9
-  input.attachEvent("onkeydown", function() {
-    var key = window.event.keyCode;
-    (key == 8 || key == 46) && fn(); //处理回退与删除
-  });
-  input.attachEvent("oncut", fn); //处理粘贴
-}
-
-//====================================
+console.log(b.__proto__ == B.prototype);
+//true 这个大家应该都没有疑问
+console.log(b.__proto__.__proto__ === A.prototype);
+//true  样就得到父类的原型对象
 var P = (function(prototype, ownProperty, undefined) {
 
-  function isObject(o) {
-    return typeof o === 'object';
-  }
-
-  function isFunction(f) {
-    return typeof f === 'function';
-  }
-
-  function BareConstructor() {};
-
-  function P(_superclass /* = Object */ , definition) {
-    //如果只传一个参数，没有指定父类
-    if(definition === undefined) {
-      definition = _superclass;
-      _superclass = Object;
+    function isObject(o) {
+        return typeof o === 'object';
     }
 
-    //C为我们要返回的子类，definition中的init为用户构造器
-
-    function C() {
-      var self = new Bare;
-      console.log(self.init)
-      if(isFunction(self.init)) self.init.apply(self, arguments);
-      return self;
+    function isFunction(f) {
+        return typeof f === 'function';
     }
 
-    function Bare() { //这个构造器是为了让C不用new就能返回实例而设的
-    }
-    C.Bare = Bare;
-    //为了防止改动子类影响到父类，我们将父类的原型赋给一个中介者BareConstructor，
-    //然后再将这中介者的实例作子类的原型
-    var _super = BareConstructor[prototype] = _superclass[prototype];
-    var proto = Bare[prototype] = C[prototype] = new BareConstructor; //
-    //然后C与Bare都共享同一个原型
-    //最后修正子类的构造器指向自身
-    proto.constructor = C;
-    //类方法mixin,不过def对象里面的属性与方法糅杂到原型里面去
-    C.mixin = function(def) {
-      Bare[prototype] = C[prototype] = P(C, def)[prototype]; //Bare[prototype] =
-      return C;
-    }
-    //definition最后延迟到这里才起作用
-    return(C.open = function(def) {
-      var extensions = {};
-      //definition有两种形态
-      //如果是函数,那么子类原型,父类原型,子类构造器,父类构造传进去,
-      //如果是对象则直接置为extensions
-      if(isFunction(def)) {
-        extensions = def.call(C, proto, _super, C, _superclass);
-      } else if(isObject(def)) {
-        extensions = def;
-      }
-      //最后混入子类的原型中
-      if(isObject(extensions)) {
-        for(var ext in extensions) {
-          if(ownProperty.call(extensions, ext)) {
-            proto[ext] = extensions[ext];
-          }
+    function BareConstructor() {};
+
+    function P(_superclass /* = Object */ , definition) {
+        //如果只传一个参数，没有指定父类
+        if(definition === undefined) {
+            definition = _superclass;
+            _superclass = Object;
         }
-      }
-      //确保init为一个函数
-      if(!isFunction(proto.init)) {
-        proto.init = _superclass;
-      }
 
-      return C;
-    })(definition);
+        //C为我们要返回的子类，definition中的init为用户构造器
 
-    //这里为一个自动执行函数表达式，相当于
-    //C.open = function(){/*....*/}
-    //C.open(definition)
-    //return C;
-    //换言之，返回的子类存在三个类成员，Base, mixin, open
-  }
+        function C() {
+            var self = new Bare;
+            console.log(self.init)
+            if(isFunction(self.init)) self.init.apply(self, arguments);
+            return self;
+        }
 
-  return P; //暴露到全局
+        function Bare() { //这个构造器是为了让C不用new就能返回实例而设的
+        }
+        C.Bare = Bare;
+        //为了防止改动子类影响到父类，我们将父类的原型赋给一个中介者BareConstructor，
+        //然后再将这中介者的实例作子类的原型
+        var _super = BareConstructor[prototype] = _superclass[prototype];
+        var proto = Bare[prototype] = C[prototype] = new BareConstructor; //
+        //然后C与Bare都共享同一个原型
+        //最后修正子类的构造器指向自身
+        proto.constructor = C;
+        //类方法mixin,不过def对象里面的属性与方法糅杂到原型里面去
+        C.mixin = function(def) {
+            Bare[prototype] = C[prototype] = P(C, def)[prototype]; //Bare[prototype] =
+            return C;
+        }
+        //definition最后延迟到这里才起作用
+        return(C.open = function(def) {
+            var extensions = {};
+            //definition有两种形态
+            //如果是函数,那么子类原型,父类原型,子类构造器,父类构造传进去,
+            //如果是对象则直接置为extensions
+            if(isFunction(def)) {
+                extensions = def.call(C, proto, _super, C, _superclass);
+            } else if(isObject(def)) {
+                extensions = def;
+            }
+            //最后混入子类的原型中
+            if(isObject(extensions)) {
+                for(var ext in extensions) {
+                    if(ownProperty.call(extensions, ext)) {
+                        proto[ext] = extensions[ext];
+                    }
+                }
+            }
+            //确保init为一个函数
+            if(!isFunction(proto.init)) {
+                proto.init = _superclass;
+            }
+
+            return C;
+        })(definition);
+
+        //这里为一个自动执行函数表达式，相当于
+        //C.open = function(){/*....*/}
+        //C.open(definition)
+        //return C;
+        //换言之，返回的子类存在三个类成员，Base, mixin, open
+
+    }
+
+    return P; //暴露到全局
 })('prototype', ({}).hasOwnProperty);
-
-//===========================================
 var Animal = P(function(proto, superProro) {
   proto.init = function(name) { //构造函数
     this.name = name;
@@ -255,85 +254,14 @@ var Animal = P(function(proto, superProro) {
   }
 });
 var a = new Animal("aaa")
-var b = Animal("bbb");
+var b = Animal("bbb");//无”new”实例化
 
 a.move(1)
 b.move(2)
 
-
-
-var JS = {
-  VERSION: '2.2.1'
-};
-
-JS.Class = function(classDefinition) {
-
-  //返回目标类的真正构造器
-
-  function getClassBase() {
-    return function() {
-      //它在里面执行用户传入的构造器construct
-      //preventJSBaseConstructorCall是为了防止在createClassDefinition辅助方法中执行父类的construct
-      if(typeof this['construct'] === 'function' && preventJSBaseConstructorCall === false) {
-        this.construct.apply(this, arguments);
-      }
-    };
-  }
-  //为目标类添加类成员与原型成员
-
-  function createClassDefinition(classDefinition) {
-    //此对象用于保存父类的同名方法
-    var parent = this.prototype["parent"] || (this.prototype["parent"] = {});
-    for(var prop in classDefinition) {
-      if(prop === 'statics') {
-        for(var sprop in classDefinition.statics) {
-          this[sprop] = classDefinition.statics[sprop];
-        }
-      } else {
-        //为目标类添加原型成员，如果是函数，那么检测它还没有同名的超类方法，如果有
-        if(typeof this.prototype[prop] === 'function') {
-          var parentMethod = this.prototype[prop];
-          parent[prop] = parentMethod;
-        }
-        this.prototype[prop] = classDefinition[prop];
-      }
-    }
-  }
-
-  var preventJSBaseConstructorCall = true;
-  var Base = getClassBase();
-  preventJSBaseConstructorCall = false;
-
-  createClassDefinition.call(Base, classDefinition);
-
-  //用于创建当前类的子类
-  Base.extend = function(classDefinition) {
-
-    preventJSBaseConstructorCall = true;
-    var SonClass = getClassBase();
-    SonClass.prototype = new this(); //将一个父类的实例当作子类的原型
-    preventJSBaseConstructorCall = false;
-
-    createClassDefinition.call(SonClass, classDefinition);
-    SonClass.extend = this.extend;
-
-    return SonClass;
-  };
-  return Base;
-};
-
-var Animal = P({
-  init: function(name) { //构造函数
-    this.name = name;
-  },
-  move: function(meters) { //原型方法
-    console.log(this.name + " moved " + meters + "m.");
-  }
-});
-
 var Snake = P(Animal, function(snake, animal) {
   snake.init = function(name, eyes) {
-    snake.init.call(this, arguments); //调用父类构造器
+    animal.init.call(this, arguments); //调用父类构造器
     this.eyes = 2;
   }
   snake.move = function() {
@@ -345,6 +273,77 @@ var s = new Snake("snake", 1);
 s.move();
 console.log(s.name);
 console.log(s.eyes);
+
+var Cobra = P(Snake, function(cobra) {
+  var age = 1; //私有属性
+  //这里还可以编写私有方法
+  cobra.glow = function() { //长大
+    return age++;
+  }
+});
+var c = new Cobra("cobra");
+console.log(c.glow()); //1
+console.log(c.glow()); //2 又长一岁
+console.log(c.glow()); //3 又长一岁
+
+
+var JS = {
+    VERSION: '2.2.1'
+};
+
+JS.Class = function(classDefinition) {
+
+    //返回目标类的真正构造器
+    function getClassBase() {
+        return function() {
+            //它在里面执行用户传入的构造器construct
+            //preventJSBaseConstructorCall是为了防止在createClassDefinition辅助方法中执行父类的construct
+            if (typeof this['construct'] === 'function' && preventJSBaseConstructorCall === false) {
+                this.construct.apply(this, arguments);
+            }
+        };
+    }
+    //为目标类添加类成员与原型成员
+    function createClassDefinition(classDefinition) {
+        //此对象用于保存父类的同名方法
+        var parent = this.prototype["parent"] || (this.prototype["parent"] = {});
+        for (var prop in classDefinition) {
+            if (prop === 'statics') {
+                for (var sprop in classDefinition.statics) {
+                    this[sprop] = classDefinition.statics[sprop];
+                }
+            } else {
+                //为目标类添加原型成员，如果是函数，那么检测它还没有同名的超类方法，如果有
+                if (typeof this.prototype[prop] === 'function') {
+                    var parentMethod = this.prototype[prop];
+                    parent[prop] = parentMethod;
+                }
+                this.prototype[prop] = classDefinition[prop];
+            }
+        }
+    }
+
+    var preventJSBaseConstructorCall = true;
+    var Base = getClassBase();
+    preventJSBaseConstructorCall = false;
+
+    createClassDefinition.call(Base, classDefinition);
+
+    //用于创建当前类的子类
+    Base.extend = function(classDefinition) {
+
+        preventJSBaseConstructorCall = true;
+        var SonClass = getClassBase();
+        SonClass.prototype = new this();//将一个父类的实例当作子类的原型
+        preventJSBaseConstructorCall = false;
+
+        createClassDefinition.call(SonClass, classDefinition);
+        SonClass.extend = this.extend;
+
+        return SonClass;
+    };
+    return Base;
+};
 
 var Animal = JS.Class({
   construct: function(name) {
@@ -371,6 +370,8 @@ var dog = new Dog("dog", 4);
 console.log(dog.name);
 dog.shout("dog"); // dog
 dog.run("run"); // run
+
+
 var Shepherd = Dog.extend({
   statics: { //静态成员
     TYPE: "Shepherd"
@@ -382,70 +383,76 @@ var Shepherd = Dog.extend({
 console.log(Shepherd.TYPE); //Shepherd
 var shepherd = new Shepherd("shepherd", 5);
 shepherd.run(); //fast
+
 (function() {
-  // /xyz/.test(function(){xyz;})是用于判定函数的toString是否能暴露里面的实现。
-  // 因为Function.prototype.toString没有做出强制规定如何显示自身，根据浏览器实现而定
-  // 如果里面能显示内部内容，那么我们就使用 /\b_super\b/来检测函数里面有没有.super语句
-  // 当然这个也不很准备，只是够用的程度；否则就返回一个怎么也返回true的正则
-  // 比如一些古老版本的safari, Mobile Opera,与 Blackberry浏览器，无法显示函数体的内容，
-  // 就需要用到后面的正则
-  var initializing = false,
-    fnTest = /xyz/.test(function() {
-      xyz;
+    // /xyz/.test(function(){xyz;})是用于判定函数的toString是否能暴露里面的实现。
+    // 因为Function.prototype.toString没有做出强制规定如何显示自身，根据浏览器实现而定
+    // 如果里面能显示内部内容，那么我们就使用 /\b_super\b/来检测函数里面有没有.super语句
+    // 当然这个也不很准备，只是够用的程度；否则就返回一个怎么也返回true的正则
+    // 比如一些古老版本的safari, Mobile Opera,与 Blackberry浏览器，无法显示函数体的内容，
+    // 就需要用到后面的正则
+    var initializing = false, fnTest = /xyz/.test(function() {
+        xyz;
     }) ? /\b_super\b/ : /.*/;
 
-  // 所有人工类的基类
-  this.Class = function() {};
+    // 所有人工类的基类
+    this.Class = function() {
+    };
 
-  //这是用于生成目标类的子类
-  Class.extend = function(prop) {
-    var _super = this.prototype; //保存父类的原型
-    //阻止init被触发
-    initializing = true;
-    var prototype = new this(); //创建子类的原型
-    //重新打开，方便真实用户可以调用init
-    initializing = false;
-    //将prop里的东西逐个复制到prototype,如果是函数将特殊处理一下
-    //因为复制过程中可能掩盖了超类的同名方法，如果这个函数里面存在_super的字样，就笼统地
-    //认为它需要调用父类的同名方法，那么我们需要重写当前函数
-    //重写函数运用了闭包，因此fnTest正则检测可以减少我们重写方法的个数，
-    //因为不是每个同名函数都会向上调用父类方法
-    for(var name in prop) {
-      prototype[name] = typeof prop[name] === "function" && typeof _super[name] === "function" && fnTest.test(prop[name]) ? (function(name, fn) {
-        return function() {
-          var tmp = this._super; //保存到临时变量中
-          //当我们调用时，才匆匆把父类的同方法覆写到_super里
-          this._super = _super[name];
-          //然后才开始执行当前方法（这时里面的this._super已被重写），得到想要的效果
-          var ret = fn.apply(this, arguments);
-          //还原this._super
-          this._super = tmp;
-          //返回结果
-          return ret;
-        };
-      })(name, prop[name]) : prop[name];
-    }
+//这是用于生成目标类的子类
+    Class.extend = function(prop) {
+        var _super = this.prototype;//保存父类的原型
 
-    // 这是目标类的真实构造器
+        //阻止init被触发
+        initializing = true;
+        var prototype = new this();//创建子类的原型
+        //重新打开，方便真实用户可以调用init
+        initializing = false;
+        //将prop里的东西逐个复制到prototype,如果是函数将特殊处理一下
+        //因为复制过程中可能掩盖了超类的同名方法，如果这个函数里面存在_super的字样，就笼统地
+        //认为它需要调用父类的同名方法，那么我们需要重写当前函数
+        //重写函数运用了闭包，因此fnTest正则检测可以减少我们重写方法的个数，
+        //因为不是每个同名函数都会向上调用父类方法
+        for (var name in prop) {
+            prototype[name] = typeof prop[name] === "function" &&
+                    typeof _super[name] === "function" && fnTest.test(prop[name]) ?
+                    (function(name, fn) {
+                        return function() {
+                            var tmp = this._super;//保存到临时变量中
+                            //当我们调用时，才匆匆把父类的同方法覆写到_super里
+                            this._super = _super[name];
+                            //然后才开始执行当前方法（这时里面的this._super已被重写），得到想要的效果
+                            var ret = fn.apply(this, arguments);
+                            //还原this._super
+                            this._super = tmp;
+                            //返回结果
+                            return ret;
+                        };
+                    })(name, prop[name]) :
+                    prop[name];
+        }
 
-    function Class() {
-      // 为了防止在生成子类的原型（new this()）时触发用户传入的构造器init，
-      // 使用initializing进行牵制
-      if(!initializing && this.init) this.init.apply(this, arguments);
-    }
+        // 这是目标类的真实构造器
+        function Class() {
+            // 为了防止在生成子类的原型（new this()）时触发用户传入的构造器init，
+            // 使用initializing进行牵制
+            if (!initializing && this.init)
+                this.init.apply(this, arguments);
+        }
 
-    //将修改好的原型赋是去
-    Class.prototype = prototype;
+        //将修改好的原型赋是去
+        Class.prototype = prototype;
 
-    // 确保原型上constructor正确指向自身
-    Class.prototype.constructor = Class;
+        // 确保原型上constructor正确指向自身
+        Class.prototype.constructor = Class;
 
-    //添加extend类方法，生于生产它的子类 
-    Class.extend = arguments.callee;
+        //添加extend类方法，生于生产它的子类 
+        Class.extend = arguments.callee;
 
-    return Class;
-  };
+        return Class;
+    };
 })();
+
 
 var Animal = Class.extend({
   init: function(name) {
@@ -472,7 +479,7 @@ var dog = new Dog("dog", 4);
 console.log(dog.name); //dog
 dog.shout("xxx"); // xxx
 dog.run("run"); // run
-console.log(dog instanceof Dog && dog instanceof Animal)
+console.log(dog instanceof Dog && dog instanceof Animal);
 
 var Person = Class.create();
 Person.prototype = {
@@ -495,6 +502,13 @@ var Pirate = Class.create(Person, {
 
 var john = new Pirate('Long John');
 console.log(john.say('good bye')) //Long John: good bye, yarr!
+
+class Child < Father   
+ #略 
+end  
+
+
+
 def("Animal")({
   init: function(name) {
     this.name = name;
@@ -504,7 +518,9 @@ def("Animal")({
   }
 });
 var animal = new Animal("Animal");
+
 console.log(animal.name)
+
 def("Dog") < Animal({
   init: function(name, age) {
     this._super(); //魔术般地调用父类
@@ -516,6 +532,7 @@ def("Dog") < Animal({
 });
 var dog = new Dog("wangwang");
 console.log(dog.name); //wangwang
+
 //在命名空间对象上创建子类
 var namespace = {}
 def(namespace, "Shepherd") < Dog({
@@ -527,17 +544,11 @@ def(namespace, "Shepherd") < Dog({
 var shepherd = new namespace.Shepherd("Shepherd")
 console.log(shepherd.name);
 
-//==========================
-var a = {
-  valueOf: function() {
-    console.log("aaaaaaa")
-  }
-},
-  b = {
-    valueOf: function() {
-      console.log("bbbbbbb")
-    }
-  }
+var a = {valueOf:function(){
+  console.log("aaaaaaa")
+}}, b = {valueOf:function(){
+  console.log("bbbbbbb")
+}}
 a < b
 
 
@@ -550,9 +561,10 @@ function def(name) {
   }
   return obj
 }
+def("Dog") < def("Animal");
 
-def("Dog") < def("Animal")
 
+//https://github.com/RubyLouvre/def.js
 (function(global) {
   //deferred是整个库最重要的构件，扮演三个角色
   //1 def("Animal")时就是返回deferred,此时我们可以直接接括号对原型进行扩展
@@ -652,20 +664,31 @@ if(Object.defineProperty && Object.seal) {
     value: 2
   })
 }
-console.log(Object.getOwnPropertyNames(obj)); //["aa", "toString", "name"]
-console.log(Object.keys(obj)); //["aa", "toString"]
+console.log(Object.getOwnPropertyNames(obj));//["aa", "toString", "name"]
+console.log(Object.keys(obj));//["aa", "toString"]
 
 function fn(aa, bb) {};
-console.log(Object.getOwnPropertyNames(fn)); //["prototype","length","name","arguments","caller"]
-console.log(Object.keys(fn)); //[]
+console.log(Object.getOwnPropertyNames(fn));//["prototype","length","name","arguments","caller"]
+console.log(Object.keys(fn));//[]
 var reg = /\w{2,}/i
 
-console.log(Object.getOwnPropertyNames(reg)); //["lastIndex","source","global","ignoreCase","mnltiline","sticky"]
-console.log(Object.keys(reg)); //[]
+console.log(Object.getOwnPropertyNames(reg));//["lastIndex","source","global","ignoreCase","mnltiline","sticky"]
+console.log(Object.keys(reg));//[]
+
 console.log(Object.getPrototypeOf(function() {}) == Function.prototype); //true
 console.log(Object.getPrototypeOf({}) === Object.prototype); //true
 
-var obj = {};
+var obj = { x : 1 };
+
+
+var obj = Object.create(Object.prototype, 
+  { x : {
+    value : 1,          
+    writable : true,     
+    enumerable : true,   
+    configurable : true  
+  }}
+var obj = {}; 
 Object.defineProperty(obj, "a", {
   value: 37,
   writable: true,
@@ -673,14 +696,15 @@ Object.defineProperty(obj, "a", {
   configurable: true
 });
 
-console.log(obj.a); //37
+console.log(obj.a);//37
 obj.a = 40;
-console.log(obj.a); //40 
+console.log(obj.a);//40 
 var name = "xxx"
-for(var i in obj) {
-  name = i
+for(var i in obj){
+   name = i
 }
-console.log(name); //a
+console.log(name);//a
+
 Object.defineProperty(obj, "a", {
   value: 55,
   writable: false,
@@ -688,56 +712,71 @@ Object.defineProperty(obj, "a", {
   configurable: true
 });
 
-console.log(obj.a); //55
+console.log(obj.a);//55
 obj.a = 50;
-console.log(obj.a); //55 
+console.log(obj.a);//55 
 name = "b";
-for(var i in obj) {
-  name = i
+for(var i in obj){
+   name = i
 }
-console.log(name); //b
+console.log(name);//b
+ 
+
 var value = "RubyLouvre";
 Object.defineProperty(obj, "b", {
-  set: function(a) {
+  set: function(a){
     value = a;
   },
-  get: function() {
+  get: function(){
     return value + "!"
   }
 });
 
-console.log(obj.b); //RubyLouvre!
+console.log(obj.b);//RubyLouvre!
 obj.b = "bbb";
-console.log(obj.b); //bbb!
-var obj = Object.defineProperty({}, 'a', {
+console.log(obj.b);//bbb!
+
+var obj = Object.defineProperty( {} , 'a', {
   value: "aaa"
 });
-delete obj.a; //configurable默认为false,此属性不能删除
-console.log(obj.a); //aaa
+delete obj.a;//configurable默认为false,此属性不能删除
+console.log(obj.a);//aaa
+
+var arr = [];
+//添加一个属性，但由于是数字字面量，它又会作为数组的第一个元素
+Object.defineProperty(arr, '0', {value : "零"});
+Object.defineProperty(arr, 'length', {value : 10});
+//删除第一个元素，但由于length的writable在上面被我们设置为false(不写默认为false)，因此改不了。
+arr.length = 0 ;
+alert([arr.length, arr[0]]);//正确应该输出 “1,零”
+IE9，IE10：”1,零”
+Firefox4-19：抛内部错误，说当前不支持定义length属性
+Safari5.0.1: “0, ”，第二值应该是undefined，说明它忽略了writable为false的默认设置，让arr.length把第一个元素删掉了
+Chrome14-: “0,零”，估计后面的“零”是作为属性打印出来，chrome24与标准保持一致。
+
+
 Object.prototype.set = undefined
 var obj = {};
-Object.defineProperty(obj, "aaa", {
-  value: "OK"
-});
+Object.defineProperty(obj, "aaa", { value: "OK" });
 //TypeError: property descriptor's getter field is neither undefined nor a function
-Object.prototype.get = function() {};
+
+
+Object.prototype.get = function(){};
 var obj = {};
-Object.defineProperty(obj, "aaa", {
-  value: "OK"
-});
+Object.defineProperty(obj,  "aaa", { value: "OK" });
 //TypeError: property descriptors must not specify a value or be writable when a getter or setter has been specified
+
 
 function hasOwn(obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key);
 }
-
 function defineProperty(obj, key, desc) {
-  //创建一个纯空对象，不继承Object.prototype，跳过那些粗糙的for in遍历BUG
+//创建一个纯空对象，不继承Object.prototype，跳过那些粗糙的for in遍历BUG
   var d = Object.create(null);
-  d.configurable = hasOwn(desc, "configurable");
+  d.configurable = hasOwn(desc,"configurable");
   d.enumerable = hasOwn(desc, "enumrable");
-  if(hasOwn(desc, "value")) {
-    d.writable = hasOwn(desc, "writable")
+  if (hasOwn(desc, "value")) {
+    d.writable = hasOwn(desc, "writable") 
     d.value = desc.value;
   } else {
     d.get = hasOwn(desc, "get") ? desc.get : undefined;
@@ -746,26 +785,35 @@ function defineProperty(obj, key, desc) {
   return Object.defineProperty(obj, key, d);
 }
 var obj = {};
-defineProperty(obj, "aaa", {
-  value: "OK"
-}); //save!
+defineProperty(obj, "aaa", { value: "OK" });//save!
 
-if(typeof Object.defineProperty !== 'function') {
-  Object.defineProperty = function(obj, prop, desc) {
-    if('value' in desc) {
-      obj[prop] = desc.value;
-    }
-    if('get' in desc) {
-      obj.__defineGetter__(prop, desc.get);
-    }
-    if('set' in desc) {
-      obj.__defineSetter__(prop, desc.set);
-    }
-    return obj;
-  };
+if(typeof  Object.defineProperty!=='function'){
+    Object.defineProperty = function(obj, prop, desc) {
+        if ('value' in desc) {
+            obj[prop] = desc.value;
+        }
+        if ('get' in desc) {
+            obj.__defineGetter__(prop, desc.get);
+        }
+        if ('set' in desc) {
+            obj.__defineSetter__(prop, desc.set);
+        }
+        return obj;
+    };
 }
 
+Object.defineProperties就是Object.defineProperty的加强版，它能一下子处理多个属性。因此如果你能模拟Object.defineProperty, 它就不是问题。
 
+if(typeof  Object.defineProperties!=='function'){
+    Object.defineProperties = function(obj, descs) {
+        for (var prop in descs) {
+            if (descs.hasOwnProperty(prop)) {
+                Object.defineProperty(obj, prop, descs[prop]);
+            }
+        }
+        return obj;
+    };
+}
 var obj = {};
 Object.defineProperties(obj, {
   "value": {
@@ -781,7 +829,8 @@ var a = 1;
 for(var p in obj) {
   a = p;
 }
-console.log(a); //1
+console.log(a);//1
+
 var obj = {},
   value = 0
   Object.defineProperty(obj, "aaa", {
@@ -792,29 +841,32 @@ var obj = {},
       return value
     }
   });
+//一个包含set, get, configurable, enumerable的对象
 console.log(Object.getOwnPropertyDescriptor(obj, "aaa"));
-console.log(typeof obj.aaa); //number
-console.log(obj.hasOwnProperty("aaa")); //true
+console.log(typeof obj.aaa);//number
+console.log(obj.hasOwnProperty("aaa"));//true
+
+
 (function() {
+//一个包含value, writable, configurable, enumerable的对象
   console.log(Object.getOwnPropertyDescriptor(arguments, "length"))
 })(1, 2, 3);
 
 
 function mixin(receiver, supplier) {
-  if(Object.getOwnPropertyDescriptor) {
-    Object.keys(supplier).forEach(function(property) {
-      Object.defineProperty(receiver, property, Object.getOwnPropertyDescriptor(supplier, property));
-    });
-  } else {
-    for(var property in supplier) {
-      if(supplier.hasOwnProperty(property)) {
-        receiver[property] = supplier[property];
-      }
+    if (Object.getOwnPropertyDescriptor) {
+        Object.keys(supplier).forEach(function(property) {
+            Object.defineProperty(receiver, property, Object.getOwnPropertyDescriptor(supplier, property));
+        });
+    } else {
+        for (var property in supplier) {
+            if (supplier.hasOwnProperty(property)) {
+                receiver[property] = supplier[property];
+            }
+        }
     }
-  }
 }
-
-if(typeof Object.create !== 'function') {
+if(typeof  Object.create !== 'function') {
   Object.create = function(prototype, descs) {
     function F() {}
 
@@ -826,6 +878,7 @@ if(typeof Object.create !== 'function') {
     return obj;
   };
 }
+
 
 function Animal(name) {
   this.name = name
@@ -852,9 +905,10 @@ Dog.prototype = Object.create(Animal.prototype, {
 });
 
 var dog = new Dog("dog", 4);
-console.log(dog.name); //dog
+console.log(dog.name);//dog
 dog.setAge(6);
-console.log(dog.getAge()); //6
+console.log(dog.getAge());//6
+
 //https://github.com/kriskowal/es5-shim/blob/master/es5-sham.js
 var createEmpty;
 var supportsProto = Object.prototype.__proto__ === null;
@@ -866,8 +920,8 @@ if(supportsProto || typeof document == 'undefined') {
   };
 } else {
   // 因为我们无法让一个对象继承自一个不存在的东西，它最后肯定要回溯到
-  // Object.prototype那么我们就从一个新的执行环境中盗取一个Object.prototype，
-  // 把它的所有原型属性都砍掉，那么它的实例就既没有特殊属性，也没有什么原型属性
+  //Object.prototype那么我们就从一个新的执行环境中盗取一个Object.prototype，
+  //把它的所有原型属性都砍掉，那么它的实例就既没有特殊属性，也没有什么原型属性
   //（只剩下一个__proto__，值为null）
   createEmpty = (function() {
     var iframe = document.createElement('iframe');
@@ -896,72 +950,48 @@ if(supportsProto || typeof document == 'undefined') {
   })();
 }
 
-var a = new createEmpty()
-console.log(a);
-console.log({});
-console.log(Object.create(null));
-console.log(null)
-console.log([])
-
 var a = {
   aa: "aa"
 };
 Object.preventExtensions(a)
 a.bb = 2;
-console.log(a.bb); //undefined 添加本地属性失败
+console.log(a.bb);//undefined 添加本地属性失败
 a.aa = 3;
-console.log(a.aa); //3  不能删除它已有属性
+console.log(a.aa);//3  允许它修改原有属性
 delete a.aa;
-console.log(a.aa); //undefined 但允许它删除原有属性
+console.log(a.aa); //undefined 但允许它删除已有属性
 Object.prototype.ccc = 4;
-console.log(a.ccc); //4 不能阻止它增添原型属性
+console.log(a.ccc);//4  不能阻止它增添原型属性
 a.aa = 5;
-console.log(a.bb); //undefined ，不吃回头草，估计里面是以白名单方式实现
+console.log(a.bb);//undefined ，不吃回头草，估计里面是以白名单方式实现
+
+
 var a = {
   aa: "aa"
 };
 Object.seal(a)
 a.bb = 2;
-console.log(a.bb); //undefined 添加本地属性失败
+console.log(a.bb);//undefined 添加本地属性失败
 a.aa = 3;
-console.log(a.aa); //3   允许它修改已有属性
+console.log(a.aa);//3   允许它修改已有属性
 delete a.aa;
 console.log(a.aa); //3  但不允许它删除已有属性
+
+
 var a = {
   aa: "aa"
 };
 Object.freeze(a)
 a.bb = 2;
-console.log(a.bb); //undefined 添加本地属性失败
+console.log(a.bb);//undefined 添加本地属性失败
 a.aa = 3;
-console.log(a.aa); //aa   允许它修改已有属性
+console.log(a.aa);//aa   允许它修改已有属性
 delete a.aa;
 console.log(a.aa); //aa  但不允许它删除已有属性
-var obj = {},
-  value = 0
-  Object.defineProperty(obj, "aaa", {
-    set: function(a) {
-      value = a;
-    },
-    get: function() {
-      return value
-    }
-  });
 
-function Animal(name) {
-  return Object.create(Animal.prototype, {
-    name: {
-      value: name,
-      enumerable: true,
-      writable: true
-    }
-  })
-}
-
-var a = Animal("aaa")
-console.log(a.name); //aaa
-console.log(a instanceof Animal); //true
-
+Object.isExtensible(object);
+Object.isSealed(object);
+Object.isFrozen(object);
 
 (function(global) {
   function fixDescriptor(item, definition, prop) {
@@ -972,7 +1002,8 @@ console.log(a instanceof Animal); //true
       }
     } else { //如果是以es3那样普通对象定义扩展包
       item = definition[prop] = {
-        value: item,
+
+	    value: item,
         enumerable: true,
         writable: true
       };
@@ -1048,24 +1079,11 @@ console.log(a instanceof Animal); //true
           }
         });
       }
-      return Base;
+      return Object.freeze(Base);
     }
   }
 
 })(this)
-
-var Animal = Class.create({
-  statics: {
-    Name: "Animal"
-  },
-  init: function(name) {
-    this.name = name;
-  },
-  getName: function() {
-    return this.name;
-  }
-});
-
 
 var Dog = Class.create(Animal, {
   statics: {
@@ -1092,3 +1110,7 @@ console.log(dog.getName()); //dog!
 console.log(dog.getAge()); //12
 console.log(dog instanceof Animal); //true
 console.log(Dog.Name); //Dog
+
+
+
+
