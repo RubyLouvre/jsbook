@@ -6,7 +6,8 @@ book
 // prelude 11 seed 17 module 14  lang 38  detect 10  class 33  selector 43
 // node 55 data 17 css 34 attr 32 event 55 async  34 io 28 fx 40 plugin 13 mvvm 42
 
-书名 javascript框架设计：像CTO一样思考代码
+书名 javascript框架设计——现代魔法指南
+
 
 
 序章
