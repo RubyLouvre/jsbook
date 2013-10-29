@@ -4,8 +4,10 @@ book
 我的书的演示代码与图片与思维图源文件(已写完，正交由史上最华丽团队审稿中……)
 // 各章的页数
 // prelude 11 seed 17 module 14  lang 38  detect 10  class 33  selector 43
-// node 55 data 17 css 34 attr 32 event 53 async  34 io 28 fx 40 plugin 13 mvvm 40
-书名 javascript框架设计
+// node 55 data 17 css 34 attr 32 event 55 async  34 io 28 fx 40 plugin 13 mvvm 42
+
+书名 javascript框架设计：像上帝一样创造世界
+
 
 序章
 
@@ -18,7 +20,7 @@ book
 第1节 命名空间
 第2节 对象扩展
 第3节 数组化
-第4节 类型的获取与判定
+第4节 类型的判定
 第5节 domReady
 第6节 无冲突处理
 
@@ -120,6 +122,8 @@ book
 第12节 mouseenter与mouseleave事件的修复
 第13节 focusin与focusout事件的修复
 第14节 旧式IE下submit的事件代理的实现
+第15节 oninput事件的兼容性处理
+
 
 第12章 异步处理
 第1节 setTimeout与setInterval
@@ -160,4 +164,5 @@ book
 第4节  绑定
 第5节  监控数组与子模板
 结语
+
 </pre>
