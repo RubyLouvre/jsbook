@@ -47,26 +47,25 @@
 
 })(jQuery, window);
 
+
 //https://github.com/RubyLouvre/mass-Framework/blob/1.4/more/brower.js
-define("brower", function( ){
-     var w = window,ver = w.opera ? (opera.version().replace(/\d$/, "") - 0)
-    : parseFloat((/(?:IE |fox\/|ome\/|ion\/)(\d+\.\d)/.
-        exec(navigator.userAgent) || [,0])[1]);
+define("brower", function( ) {
+    var w = window, ver = w.opera ? (opera.version().replace(/\d$/, "") - 0)
+            : parseFloat((/(?:IE |fox\/|ome\/|ion\/)(\d+\.\d)/.
+            exec(navigator.userAgent) || [, 0])[1]);
     return {
-        //测试是否为ie或内核为trident，是则取得其版本号
-        ie: !!w.VBArray && Math.max(document.documentMode||0, ver),//内核trident
-        //测试是否为firefox，是则取得其版本号
-        firefox: !!w.netscape && ver,//内核Gecko
-        //测试是否为opera，是则取得其版本号
-        opera:  !!w.opera && ver,//内核 Presto 9.5为Kestrel 10为Carakan
-        //测试是否为chrome，是则取得其版本号
-        chrome: !! w.chrome &&  ver ,//内核V8
-        //测试是否为safari，是则取得其版本号
+        //测试是否为IE或内核为trident，是则取得其版本号
+        ie: !!w.VBArray && Math.max(document.documentMode || 0, ver), //内核trident
+        //测试是否为Firefox，是则取得其版本号
+        firefox: !!w.netscape && ver, //内核Gecko
+        //测试是否为Opera，是则取得其版本号
+        opera: !!w.opera && ver, //内核 Presto 9.5为Kestrel 10为Carakan
+        //测试是否为Chrome，是则取得其版本号
+        chrome: !!w.chrome && ver, //内核V8
+        //测试是否为Safari，是则取得其版本号
         safari: /apple/i.test(navigator.vendor) && ver// 内核 WebCore
     }
 });
-
-   
 
 ie = !!document.recalc
 ie = !!window.VBArray
@@ -74,10 +73,9 @@ ie = !!window.ActiveXObject
 ie = !!window.createPopup;
 ie = /*@cc_on!@*/!1;
 ie = document.expando;//document.all在opera firefox的古老版本也存在
-ie = /\w/.test('\u0130') //由群里的abcd友情提供
-ie = (function() {
-    var v = 3, div = document.createElement('div'), a = div.all || [];
-    while (div.innerHTML = '<!--[if gt IE ' + (++v) + ']><br><![endif]-->', a[0])
+ie = (function() {//IE10中失效
+    var v = 3, div = document.createElement('div');
+    while (div.innerHTML = '<!--[if gt IE ' + (++v) + ']><br><![endif]-->', div.innerHTML)
         ;
     return v > 4 ? v : !v;
 }());
@@ -87,8 +85,9 @@ ie678 = !-[1, ];
 ie678 = '\v' == 'v';
 ie678 = ('a~b'.split(/(~)/))[1] == "b"
 ie678 = 0.9.toFixed(0) == "0"
-IE8 = window.toStaticHTML
-IE9 = window.msPerformance
+ie678 = /\w/.test('\u0130') //由群里的abcd友情提供
+ie8 = window.toStaticHTML
+ie9 = window.msPerformance
 
 ie678 = 0//@cc_on+1;
 
@@ -103,6 +102,8 @@ ie8 = ieVersion === 5.8
 ie7 = ieVersion === 5.7
 ie6 = ieVersion === 5.6
 ie5 = ieVersion === 5.5
+ie10 = window.navigator.msPointerEnabled
+ie11 = '-ms-scroll-limit' in document.documentElement.style
 
 opera = !!window.opera;
 
@@ -115,13 +116,12 @@ safari = !!(navigator.vendor && navigator.vendor.match(/Apple/))
 safari = window.openDatabase && !window.chrome;
 chrome = !!(window.chrome && window.google)
 
-
 isIPhone = /iPhone/i.test(navigator.userAgent);
 isIPhone4 = window.devicePixelRatio >= 2//在网页中，pixel与point比值称为device-pixel-ratio，普通设备都是1，iPhone 4是2，有些Android机型是1.5
-   //http://blog.webcreativepark.net/2011/01/25-173502.html
+//http://blog.webcreativepark.net/2011/01/25-173502.html
 isIPad = /iPad/i.test(navigator.userAgent);
 isAndroid = /android/i.test(navigator.userAgent);
-isIOS = isIPhone  || isIPad ;
+isIOS = isIPhone || isIPad;
 
 var isEventSupported = (function() {
     var TAGNAMES = {
@@ -155,23 +155,22 @@ $.eventSupport = function(eventName, el) {
     el = null;
     return ret;
 };
-：
 //https://github.com/RubyLouvre/mass-Framework/blob/1.4/event.js
 try {
-    //如果浏览器是支持创建MouseScrollEvents事件对象，那么就用DOMMouseScroll
+    //如果浏览器支持创建MouseScrollEvents事件对象，那么就用DOMMouseScroll
     document.createEvent("MouseScrollEvents");
     eventHooks.mousewheel = {
         bindType: "DOMMouseScroll",
         delegateType: "DOMMouseScroll"
     };
-    //如果某一天,firefox回心转义支持mousewheel，那么我们就不需要这个钩子
+    //如果某一天,Firefox回心转意支持mousewheel，那么我们就不需要这个钩子
     if ($.eventSupport("mousewheel")) {
         delete eventHooks.mousewheel;
     }
 } catch (e) {
 }
-
-//首先判定它是否W3C阵营，IE肯定支持
+//https://github.com/RubyLouvre/mass-Framework/blob/1.4/support.js#L108
+//首先判定它是否是W3C阵营，IE肯定支持
 $.support.focusin = !!window.attachEvent;
 $(function() {
     var div = document.createElement("div");
@@ -185,7 +184,6 @@ $(function() {
         a.focus();
     }
 });
-
 
 $.support.transition = (function() {
     var transitionEnd = (function() {
@@ -207,19 +205,18 @@ $.support.transition = (function() {
     }
 })()
 
+
 var eventName = {
     AnimationEvent: 'animationend',
     WebKitAnimationEvent: 'webkitAnimationEnd'
 }, animationend;
+
 for (var name in eventName) {
-    try {
-        document.createEvent(name);
-        animationend = eventName[name];
-        break;
-    } catch (e) {
+    if (/object|function/.test(typeof window[name])) {
+        animationend = eventName[name]
+        break
     }
 }
-
 
 var prefixes = ['', '-webkit-', '-o-', '-moz-', '-ms-'];
 var cssMap = {
@@ -239,8 +236,12 @@ function cssName(name, host, camelCase) {
     }
     return null;
 }
+var div = document.createElement("div");
+div.innerHTML = "<table></table>"
+alert(div.innerHTML)
+//IE678返回 "<TABLE><TBODY></TBODY></TABLE>" ,其他返回"<table></table>"
 
-
+/*
 <select id="optSelected">
 </select>
 <script type="text/javascript">
@@ -251,4 +252,4 @@ function cssName(name, host, camelCase) {
     select.selectedIndex;
     alert(option.selected);
 </script>
-
+ */
