@@ -28,8 +28,8 @@ jQuery.extend({
 
                 for ( name in jQuery.cache[ id ] )
                     break;
-                //遍历缓存体，如果不为空，那name会被改写，如果没有被改写，则!name 为true，
-                //从而引发再次调用此方法，但这次是只传一个参数，移除缓存体，
+                //遍历缓存体，如果不为空，那name会被改写，如果没有被改写，则!name 为true
+                //从而引发再次调用此方法，但这次是只传一个参数，移除缓存体
                 if ( !name )
                     jQuery.removeData( elem );
             }
@@ -61,7 +61,7 @@ jQuery.extend({
     },
     dequeue: function( elem, type ){
         var queue = jQuery.queue( elem, type ),
-        fn = queue.shift();//然后删掉一个，早期它是放置动画的回调，删掉它就call一下，
+        fn = queue.shift();//然后删掉一个，早期它是放置动画的回调，删掉它就调用一下
         // 但没有做是否为函数的判定，估计也没有写到文档中，为内部使用
         if( !type || type === "fx" )
             fn = queue[0];
@@ -83,21 +83,22 @@ var ret = this.map(function(){
             html = div.innerHTML;
         }
 
-        return jQuery.clean([html.replace(/ jQuery\d+="(?:\d+|null)"/g, "").replace(/^\s*/, "")])[0];
+        return jQuery.clean([html.replace(/ jQuery\d+="(?:\d+|null)"/g, "").replace (/^\s*/, "")])[0];
     } else
         return this.cloneNode(true);
 });
-
-jQuery1.4发现IE如果对于object, ember,  
-noData: {
+/*
+noData : {
     "embed": true,
     "object": true,
     "applet": true
-},
+}
+
 //代码防御        
 if ( elem.nodeName && jQuery.noData[elem.nodeName.toLowerCase()] ) {
     return;
 }
+*/
 
 //jQuery1.43 $.fn.data
 rbrace = /^(?:\{.*\}|\[.*\])$/;
@@ -123,8 +124,8 @@ if ( data === undefined && this.length ) {
 }
 
 var cache = {
-     jQuery14312343254:{/*放置私有数据*/}
-     events: {/"放置事件名与它对应的回调列表"/}
+     jQuery14312343254:{/*放置私有数据*/},
+     events: {/*"放置事件名与它对应的回调列表"*/}
      /*这里放置用户数据*/
 }
 
@@ -142,16 +143,16 @@ Data.uid = 1;
 Data.prototype = {
     locker: function(owner) {
         var ovalueOf,
-        //owner为元素节点，文档对象，window对象
+        //owner为元素节点、文档对象、window对象
         //首先我们检测一下它们valueOf方法有没有被重写，由于浏览器的差异性，
         //我们通过觅得此三类对象的构造器进行原型重写的成本过大，只能对每一个实例的valueOf方法进行重写。
         //检测方式为传入Data类，如果是返回"object"说明没有被重写，返回"string"则是被重写。
         //这个字符串就是我们上面所说的UUID，用于在缓存仓库上开辟缓存体。
         unlock = owner.valueOf(Data);
-        //这里的重写使用了 Object.defineProperty方法，因为在这个版本jQuery不打算往下兼容IE6-8
-        //Object.defineProperty的第三个参数为对象，如果不显示设置enumerable, writable, configurable，
+        //这里的重写使用了 Object.defineProperty方法，因为在这个版本jQuery不打算往下兼容IE6～IE8
+        //Object.defineProperty的第3个参数为对象，如果不显示设置enumerable, writable, configurable，
         //则会默认为false，这也正如我们所期待的那样，我们不再希望人们来遍历它，重写它，再次动它的配置
-        //这个过程被jQuery被称之为开锁，通过valueOf这扇大门，进入到仓库
+        //这个过程被jQuery称之为开锁，通过valueOf这扇大门，进入到仓库
         if(typeof unlock !== "string") {
             unlock = jQuery.expando + Data.uid++;
             ovalueOf = owner.valueOf;
@@ -184,7 +185,7 @@ Data.prototype = {
             cache[data] = value;
             //如果传入2个参数，第2个为对象
         } else {
-            //如果缓存体还没有添加过任何对象，那直接赋值，否则使用for in 循环添加新键值对
+            //如果缓存体还没有添加过任何对象，那么直接赋值，否则使用for in 循环添加新键值对
             if(jQuery.isEmptyObject(cache)) {
                 cache = data;
             } else {
@@ -213,7 +214,7 @@ Data.prototype = {
         return value !== undefined ? value : key;
     }, 
     remove: function(owner, key) {
-        //略，与第一代差不多
+        //略，与第1代差不多
     },
     hasData: function(owner) { //判定此对象是否缓存了数据
         return !jQuery.isEmptyObject(this.cache[this.locker(owner)]);
@@ -232,41 +233,40 @@ function data_discard(owner) {
 data_user = new Data();
 data_priv = new Data();
 
-jQuery.extend({
-	// UUID
-	expando: "jQuery" + ( core_version + Math.random() ).replace( /\D/g, "" ),
+jQuery.extend({ 
+    // UUID
+    expando: "jQuery" + ( core_version + Math.random() ).replace( /\D/g, "" ),
 
-	//用于向前兼容
-	acceptData: function() {
-		return true;
-	},
+    //用于向前兼容
+    acceptData: function() {
+        return true;
+    },
 
-	hasData: function( elem ) {//判定是否缓存了数据
-		return data_user.hasData( elem ) || data_priv.hasData( elem );
-	},
+    hasData: function( elem ) {//判定是否缓存了数据
+        return data_user.hasData( elem ) || data_priv.hasData( elem );
+    },
 
-	data: function( elem, name, data ) {//读写用户数据
-		return data_user.access( elem, name, data );
-	},
+    data: function( elem, name, data ) {//读写用户数据
+        return data_user.access( elem, name, data );
+    },
 
-	removeData: function( elem, name ) {//删除用户数据
-		return data_user.remove( elem, name );
-	},
-	_data: function( elem, name, data ) {//读写私有数据
-		return data_priv.access( elem, name, data );
-	},
+    removeData: function( elem, name ) {//删除用户数据
+        return data_user.remove( elem, name );
+    },
+    _data: function( elem, name, data ) {//读写私有数据
+        return data_priv.access( elem, name, data );
+    },
 
-	_removeData: function( elem, name ) {//删除私有数据
-		return data_priv.remove( elem, name );
-	}
+    _removeData: function( elem, name ) {//删除私有数据
+        return data_priv.remove( elem, name );
+    }
 });
-
-
-//主要用于建立一个从元素到数据的引用，具体用于数据缓存，事件绑定，元素去重
+/**
+//主要用于建立一个从元素到数据的引用，具体用于数据缓存、事件绑定、元素去重
 getUid: global.getComputedStyle ? function( obj ){//IE9+,标准浏览器
     return obj.uniqueNumber || ( obj.uniqueNumber = NsVal.uuid++ );
 }: function( obj ){
-    if(obj.nodeType !== 1){//如果是普通对象，文档对象，window对象
+    if(obj.nodeType !== 1){//如果是普通对象、文档对象、window对象
         return obj.uniqueNumber || ( obj.uniqueNumber = NsVal.uuid++ );
     }//注：旧式IE的XML元素不能通过el.xxx = yyy 设置自定义属性
     var uid = obj.getAttribute("uniqueNumber");
@@ -276,11 +276,12 @@ getUid: global.getComputedStyle ? function( obj ){//IE9+,标准浏览器
     }
     return +uid;//确保返回数字
 },
-
+ 
+ */
 define("data", ["$lang"], function() {
     $.log("已加载data模块", 7);
     var remitter = /object|function/, rtype = /[^38]/;
-    function innerData(target, name, data, pvt) {//IE678不能为文本节点注释节点添加数据
+    function innerData(target, name, data, pvt) {//IE6～IE8不能为文本节点注释节点添加数据
         if ($.acceptData(target)) {
             var id = $.getUid(target), isEl = target.nodeType === 1,
                     getOne = typeof name === "string", //取得单个属性
@@ -302,8 +303,10 @@ define("data", ["$lang"], function() {
                 if (name in table) {
                     return table[name]
                 } else if (isEl && !pvt) {
-                    //对于用HTML5 data-*属性保存的数据， 如<input id="test" data-full-name="Planet Earth"/>
-                    //我们可以通过$("#test").data("full-name")或$("#test").data("fullName")访问到
+                    //对于用HTML5 data-*属性保存的数据， 如<input id="test" data-full-name=
+                    "Planet Earth"/>
+                    //我们可以通过$("#test").data("full-name")或$("#test").data("fullName")
+                    访问到
                     return $.parseData(target, name, cache);
                 }
             } else {
@@ -383,7 +386,7 @@ define("data", ["$lang"], function() {
             return innerRemoveData(target, name, true);
         },
         parseData: function(target, name, table, value) {
-            //略 处理HTML5 data-*属性
+            //略，处理HTML5 data-*属性
         },
         mergeData: function(cur, src) {
             //略
@@ -441,6 +444,7 @@ define("data", ["lang"], function($) {
     });
     return $;
 });
+
 var map = new WeakMap(), el = document.body
 map.set(el, { data:{} });//设置新键值对
 var value = map.get(el);//读取目标值
@@ -493,6 +497,4 @@ define("data", ["lang"], function($) {
         }
     });
 });
-
-
 
