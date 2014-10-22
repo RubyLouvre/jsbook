@@ -497,14 +497,14 @@ jQuery.extend({
         //因此它们俩的值必然是undefined
         //因此这种放弃控制权的技术很简单，就是用undefined把window.$里面的jQuery系的函数清除掉
         //这时Prototype或mootools的$就可以明媒正娶了
-        window.$ = _$;//相当window.$ = undefined
+        window.$ = _$;//相当window.$ = undefined 或其他库的$
         //如果连你的程序也有一个叫jQuery的东西，jQuery可以大方地连这个也让渡出去
         //这时就要为noConflict添加一个布尔值，为true
         if (deep)
             //但我们必须用一个东西接纳jQuery对象与jQuery的入口函数
             //闭包里面的东西除非被window等宿主对象引用，否则就是不可见的
             //因此我们把闭包里面的jQuery return出去，外面用一个变量接纳就是
-            window.jQuery = _jQuery;//相当window.jQuery = undefined
+            window.jQuery = _jQuery;//相当window.jQuery = undefined 或之前版本的jQuery
         return jQuery;
     }
 });
